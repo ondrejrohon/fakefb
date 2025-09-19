@@ -221,6 +221,12 @@ class VideoPostCell: UITableViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
+        
+        // Notify video manager that this cell is being reused
+        if let videoManager = videoManager {
+            videoManager.cellWillBeReused(self)
+        }
+        
         cleanupVideoPlayer()
         usernameLabel.text = nil
         timestampLabel.text = nil

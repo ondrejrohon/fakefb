@@ -14,6 +14,7 @@ class FeedViewController: UIViewController {
     private var feedDataSource: FeedDataSource!
     private var videoManager: VideoManager!
     private var fpsCounter: FPSCounter?
+    private var scrollTimer: Timer?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -109,6 +110,7 @@ class FeedViewController: UIViewController {
 
 extension FeedViewController: UITableViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        // Update videos immediately during scrolling to maintain playback of visible videos
         updateVisibleVideos()
     }
     
@@ -117,28 +119,53 @@ extension FeedViewController: UITableViewDelegate {
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        if !decelerate {
-            updateVisibleVideos()
-        }
+        updateVisibleVideos()
+    }
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        // Don't pause all videos - let updateVisibleVideos handle which ones should play/pause
+        updateVisibleVideos()
+    }
+    
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        updateVisibleVideos()
     }
     
     private func updateVisibleVideos() {
         let visibleCells = tableView.visibleCells
-        var visibleVideoCells: [VideoPostCell] = []
+        var visibleVideoCellsWithVisibility: [(cell: VideoPostCell, visibilityRatio: CGFloat)] = []
+        var outOfViewVideoCells: [VideoPostCell] = []
         
-        for cell in visibleCells {
-            if let videoCell = cell as? VideoPostCell {
+        // Check all video cells and calculate their visibility ratio
+        for indexPath in tableView.indexPathsForVisibleRows ?? [] {
+            if let cell = tableView.cellForRow(at: indexPath) as? VideoPostCell {
                 let cellFrame = tableView.convert(cell.frame, to: view)
                 let visibleHeight = min(cellFrame.maxY, view.bounds.height) - max(cellFrame.minY, 0)
                 let cellHeight = cell.frame.height
+                let visibilityRatio = max(0, visibleHeight / cellHeight)
                 
-                if visibleHeight > cellHeight * 0.6 {
-                    visibleVideoCells.append(videoCell)
+                // Cell is considered visible if more than 60% is showing
+                if visibilityRatio > 0.6 && cellFrame.maxY > 0 && cellFrame.minY < view.bounds.height {
+                    visibleVideoCellsWithVisibility.append((cell, visibilityRatio))
+                } else {
+                    outOfViewVideoCells.append(cell)
                 }
             }
         }
         
-        videoManager.updateVisibleCells(visibleVideoCells)
+        // Sort by visibility ratio (most visible first)
+        visibleVideoCellsWithVisibility.sort { $0.visibilityRatio > $1.visibilityRatio }
+        let visibleVideoCells = visibleVideoCellsWithVisibility.map { $0.cell }
+        
+        // Also check for any video cells that might be completely off-screen
+        let allVideoCells = tableView.visibleCells.compactMap { $0 as? VideoPostCell }
+        for cell in allVideoCells {
+            if !visibleVideoCells.contains(cell) && !outOfViewVideoCells.contains(cell) {
+                outOfViewVideoCells.append(cell)
+            }
+        }
+        
+        videoManager.updateVisibleCells(visibleVideoCells, outOfViewCells: outOfViewVideoCells)
     }
 }
 

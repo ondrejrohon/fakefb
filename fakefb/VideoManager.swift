@@ -22,6 +22,7 @@ class VideoManager: NSObject {
     private var preloadedPlayers: [URL: AVPlayer] = [:]
     private var observedPlayers: Set<AVPlayer> = []
     private let maxPreloadedPlayers = 3
+    private let maxConcurrentVideos = 2
     private var isEnabled = true
     
     override init() {
@@ -75,20 +76,30 @@ class VideoManager: NSObject {
         isEnabled = true
     }
     
-    func updateVisibleCells(_ visibleCells: [VideoPostCell]) {
+    func updateVisibleCells(_ visibleCells: [VideoPostCell], outOfViewCells: [VideoPostCell] = []) {
         guard isEnabled else { return }
         
         let currentlyVisible = Set(visibleCells)
         let currentlyPlaying = playingCells
+        let outOfView = Set(outOfViewCells)
         
-        let cellsToStop = currentlyPlaying.subtracting(currentlyVisible)
+        // Stop videos that are no longer visible or are out of view
+        let cellsToStop = currentlyPlaying.subtracting(currentlyVisible).union(outOfView.intersection(currentlyPlaying))
+        
+        // Play videos that are now visible and not already playing
         let cellsToPlay = currentlyVisible.subtracting(currentlyPlaying)
         
+        // First stop videos that should no longer be playing
         for cell in cellsToStop {
             stopVideo(in: cell)
         }
         
-        for cell in cellsToPlay {
+        // Start videos that should be playing (limit concurrent videos for iPhone 8 performance)
+        let cellsToPlayArray = Array(cellsToPlay)
+        let maxNewVideos = max(0, maxConcurrentVideos - playingCells.count)
+        let cellsToStartPlaying = Array(cellsToPlayArray.prefix(maxNewVideos))
+        
+        for cell in cellsToStartPlaying {
             playVideo(in: cell)
         }
         
@@ -230,6 +241,13 @@ class VideoManager: NSObject {
     
     func resumePlayback() {
         isEnabled = true
+    }
+    
+    func cellWillBeReused(_ cell: VideoPostCell) {
+        // Remove from playing cells if it's currently playing
+        if playingCells.contains(cell) {
+            stopVideo(in: cell)
+        }
     }
     
     func cleanupAll() {
