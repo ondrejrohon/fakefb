@@ -35,21 +35,16 @@ A native iOS app prototype designed to test scrolling performance and video auto
 - **Memory management** with automatic cleanup of unused video players
 - **Background/foreground handling** with automatic pause/resume
 
-## Adding Sample Videos
+## Video Configuration
 
-To add sample videos to the app:
+The app currently uses a single test video (`frame_counter_9_16.mp4`) for all video posts to ensure consistent testing. This video is located in the `fakefb/` directory and will be automatically included in the app bundle.
 
-1. Create MP4 video files named:
-   - `sample_video_1.mp4`
-   - `sample_video_2.mp4` 
-   - `sample_video_3.mp4`
-   - `sample_video_4.mp4`
-   - `sample_video_5.mp4`
+To use different videos:
 
-2. Add them to the Xcode project bundle (drag & drop into project navigator)
-
+1. Add MP4 video files to the `fakefb/` directory
+2. Update the `createMockVideoURL` method in `FeedDataSource.swift`
 3. Keep file sizes reasonable for iPhone 8 performance:
-   - Resolution: 720p or lower
+   - Resolution: 720p or lower  
    - Duration: 10-30 seconds
    - Bitrate: 1-3 Mbps
 

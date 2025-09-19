@@ -122,9 +122,7 @@ class FeedDataSource: NSObject, UITableViewDataSource, UITableViewDataSourcePref
     }
     
     private func createMockVideoURL(index: Int) -> URL? {
-        let videoNames = ["sample_video_1", "sample_video_2", "sample_video_3", "sample_video_4", "sample_video_5"]
-        let videoName = videoNames[index]
-        return Bundle.main.url(forResource: videoName, withExtension: "mp4")
+        return Bundle.main.url(forResource: "frame_counter_9_16", withExtension: "mp4")
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

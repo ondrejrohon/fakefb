@@ -20,6 +20,7 @@ class VideoManager: NSObject {
     
     private var playingCells: Set<VideoPostCell> = []
     private var preloadedPlayers: [URL: AVPlayer] = [:]
+    private var observedPlayers: Set<AVPlayer> = []
     private let maxPreloadedPlayers = 3
     private var isEnabled = true
     
@@ -177,10 +178,28 @@ class VideoManager: NSObject {
         player.isMuted = true
         
         preloadedPlayers[url] = player
+        observedPlayers.insert(player)
         
-        player.preroll(atRate: 0) { [weak self] success in
-            if !success {
-                self?.preloadedPlayers.removeValue(forKey: url)
+        // Wait for player to be ready before prerolling
+        player.addObserver(self, forKeyPath: "status", options: [.new], context: nil)
+    }
+    
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == "status",
+           let player = object as? AVPlayer,
+           player.status == .readyToPlay,
+           observedPlayers.contains(player) {
+            
+            player.removeObserver(self, forKeyPath: "status")
+            observedPlayers.remove(player)
+            
+            // Find the URL for this player
+            let playerURL = preloadedPlayers.first { $0.value === player }?.key
+            
+            player.preroll(atRate: 0) { [weak self] success in
+                if !success, let url = playerURL {
+                    self?.preloadedPlayers.removeValue(forKey: url)
+                }
             }
         }
     }
@@ -190,7 +209,14 @@ class VideoManager: NSObject {
         let urlsToRemove = preloadedPlayers.keys.filter { !currentURLSet.contains($0) }
         
         for url in urlsToRemove {
-            preloadedPlayers[url]?.pause()
+            if let player = preloadedPlayers[url] {
+                player.pause()
+                // Remove observer safely if it's being observed
+                if observedPlayers.contains(player) {
+                    player.removeObserver(self, forKeyPath: "status")
+                    observedPlayers.remove(player)
+                }
+            }
             preloadedPlayers.removeValue(forKey: url)
         }
     }
@@ -211,8 +237,13 @@ class VideoManager: NSObject {
         
         for player in preloadedPlayers.values {
             player.pause()
+            // Remove observer safely if it's being observed
+            if observedPlayers.contains(player) {
+                player.removeObserver(self, forKeyPath: "status")
+            }
         }
         preloadedPlayers.removeAll()
+        observedPlayers.removeAll()
         
         NotificationCenter.default.removeObserver(self)
     }
