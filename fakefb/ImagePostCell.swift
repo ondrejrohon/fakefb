@@ -16,6 +16,10 @@ class ImagePostCell: UITableViewCell {
     private let timestampLabel = UILabel()
     private let contentLabel = UILabel()
     private let postImageView = UIImageView()
+    private let engagementStackView = UIStackView()
+    private let likeButton = UIButton()
+    private let commentButton = UIButton()
+    private let shareButton = UIButton()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -28,9 +32,9 @@ class ImagePostCell: UITableViewCell {
     
     private func setupUI() {
         selectionStyle = .none
-        backgroundColor = .systemBackground
+        backgroundColor = UIColor(red: 0.96, green: 0.96, blue: 0.96, alpha: 1.0)
         
-        containerView.backgroundColor = .systemBackground
+        containerView.backgroundColor = .white
         containerView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(containerView)
         
@@ -41,17 +45,17 @@ class ImagePostCell: UITableViewCell {
         containerView.addSubview(profileImageView)
         
         usernameLabel.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
-        usernameLabel.textColor = .label
+        usernameLabel.textColor = UIColor(red: 0.23, green: 0.35, blue: 0.60, alpha: 1.0)
         usernameLabel.translatesAutoresizingMaskIntoConstraints = false
         containerView.addSubview(usernameLabel)
         
-        timestampLabel.font = UIFont.systemFont(ofSize: 14, weight: .regular)
-        timestampLabel.textColor = .secondaryLabel
+        timestampLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+        timestampLabel.textColor = .systemGray
         timestampLabel.translatesAutoresizingMaskIntoConstraints = false
         containerView.addSubview(timestampLabel)
         
-        contentLabel.font = UIFont.systemFont(ofSize: 16, weight: .regular)
-        contentLabel.textColor = .label
+        contentLabel.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+        contentLabel.textColor = .black
         contentLabel.numberOfLines = 0
         contentLabel.translatesAutoresizingMaskIntoConstraints = false
         containerView.addSubview(contentLabel)
@@ -59,15 +63,16 @@ class ImagePostCell: UITableViewCell {
         postImageView.contentMode = .scaleAspectFill
         postImageView.clipsToBounds = true
         postImageView.backgroundColor = .systemGray5
-        postImageView.layer.cornerRadius = 8
         postImageView.translatesAutoresizingMaskIntoConstraints = false
         containerView.addSubview(postImageView)
         
+        setupEngagementButtons()
+        
         NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
-            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+            containerView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
             
             profileImageView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 12),
             profileImageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
@@ -78,23 +83,86 @@ class ImagePostCell: UITableViewCell {
             usernameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 12),
             usernameLabel.trailingAnchor.constraint(lessThanOrEqualTo: timestampLabel.leadingAnchor, constant: -8),
             
-            timestampLabel.centerYAnchor.constraint(equalTo: usernameLabel.centerYAnchor),
-            timestampLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
+            timestampLabel.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: 2),
+            timestampLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 12),
             
             contentLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 12),
             contentLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
             contentLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
             
             postImageView.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 12),
-            postImageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
-            postImageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
+            postImageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            postImageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             postImageView.heightAnchor.constraint(equalToConstant: 250),
-            postImageView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -12)
+            
+            engagementStackView.topAnchor.constraint(equalTo: postImageView.bottomAnchor, constant: 12),
+            engagementStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
+            engagementStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
+            engagementStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -12),
+            engagementStackView.heightAnchor.constraint(equalToConstant: 32)
         ])
+    }
+    
+    private func setupEngagementButtons() {
+        engagementStackView.axis = .horizontal
+        engagementStackView.distribution = .fillEqually
+        engagementStackView.spacing = 0
+        engagementStackView.translatesAutoresizingMaskIntoConstraints = false
+        containerView.addSubview(engagementStackView)
         
-        containerView.layer.borderWidth = 0.5
-        containerView.layer.borderColor = UIColor.separator.cgColor
-        containerView.layer.cornerRadius = 8
+        likeButton.setTitle("Like", for: .normal)
+        likeButton.setTitleColor(.systemGray, for: .normal)
+        likeButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        likeButton.addTarget(self, action: #selector(likeButtonTapped), for: .touchUpInside)
+        
+        commentButton.setTitle("Comment", for: .normal)
+        commentButton.setTitleColor(.systemGray, for: .normal)
+        commentButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        commentButton.addTarget(self, action: #selector(commentButtonTapped), for: .touchUpInside)
+        
+        shareButton.setTitle("Share", for: .normal)
+        shareButton.setTitleColor(.systemGray, for: .normal)
+        shareButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        shareButton.addTarget(self, action: #selector(shareButtonTapped), for: .touchUpInside)
+        
+        engagementStackView.addArrangedSubview(likeButton)
+        engagementStackView.addArrangedSubview(commentButton)
+        engagementStackView.addArrangedSubview(shareButton)
+        
+        let separator1 = UIView()
+        separator1.backgroundColor = UIColor.systemGray5
+        separator1.translatesAutoresizingMaskIntoConstraints = false
+        
+        let separator2 = UIView()
+        separator2.backgroundColor = UIColor.systemGray5
+        separator2.translatesAutoresizingMaskIntoConstraints = false
+        
+        containerView.addSubview(separator1)
+        containerView.addSubview(separator2)
+        
+        NSLayoutConstraint.activate([
+            separator1.topAnchor.constraint(equalTo: engagementStackView.topAnchor),
+            separator1.bottomAnchor.constraint(equalTo: engagementStackView.bottomAnchor),
+            separator1.leadingAnchor.constraint(equalTo: commentButton.leadingAnchor),
+            separator1.widthAnchor.constraint(equalToConstant: 1),
+            
+            separator2.topAnchor.constraint(equalTo: engagementStackView.topAnchor),
+            separator2.bottomAnchor.constraint(equalTo: engagementStackView.bottomAnchor),
+            separator2.leadingAnchor.constraint(equalTo: shareButton.leadingAnchor),
+            separator2.widthAnchor.constraint(equalToConstant: 1)
+        ])
+    }
+    
+    @objc private func likeButtonTapped() {
+        
+    }
+    
+    @objc private func commentButtonTapped() {
+        
+    }
+    
+    @objc private func shareButtonTapped() {
+        
     }
     
     func configure(with post: PostModel) {

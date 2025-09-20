@@ -19,6 +19,7 @@ class FeedViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         optimizeForPerformance()
+        setupNavigationBar()
         setupTableView()
         setupVideoManager()
         setupFPSCounter()
@@ -26,13 +27,61 @@ class FeedViewController: UIViewController {
     }
     
     private func optimizeForPerformance() {
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = UIColor(red: 0.96, green: 0.96, blue: 0.96, alpha: 1.0)
         view.layer.drawsAsynchronously = true
         view.layer.shouldRasterize = false
         
         if let window = view.window {
             window.layer.allowsGroupOpacity = false
         }
+    }
+    
+    private func setupNavigationBar() {
+        navigationController?.navigationBar.backgroundColor = UIColor(red: 0.23, green: 0.35, blue: 0.60, alpha: 1.0)
+        navigationController?.navigationBar.barTintColor = UIColor(red: 0.23, green: 0.35, blue: 0.60, alpha: 1.0)
+        navigationController?.navigationBar.tintColor = .white
+        navigationController?.navigationBar.titleTextAttributes = [
+            .foregroundColor: UIColor.white,
+            .font: UIFont.systemFont(ofSize: 20, weight: .semibold)
+        ]
+        
+        title = "facebook"
+        
+        let searchButton = UIBarButtonItem(
+            image: UIImage(systemName: "magnifyingglass"),
+            style: .plain,
+            target: self,
+            action: #selector(searchTapped)
+        )
+        
+        let messagesButton = UIBarButtonItem(
+            image: UIImage(systemName: "message"),
+            style: .plain,
+            target: self,
+            action: #selector(messagesTapped)
+        )
+        
+        navigationItem.rightBarButtonItems = [messagesButton, searchButton]
+        
+        if #available(iOS 13.0, *) {
+            let appearance = UINavigationBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = UIColor(red: 0.23, green: 0.35, blue: 0.60, alpha: 1.0)
+            appearance.titleTextAttributes = [
+                .foregroundColor: UIColor.white,
+                .font: UIFont.systemFont(ofSize: 20, weight: .semibold)
+            ]
+            navigationController?.navigationBar.standardAppearance = appearance
+            navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        }
+    }
+    
+    @objc private func searchTapped() {
+        
+    }
+    
+    @objc private func messagesTapped() {
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
