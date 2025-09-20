@@ -231,16 +231,12 @@ extension FeedViewController: FacebookHeaderDelegate {
         print("Search tapped")
     }
     
-    func didTapHeaderMessages() {
-        print("Header Messages tapped")
+    func didTapCamera() {
+        print("Camera tapped")
     }
     
-    func didTapHeaderNotifications() {
-        print("Header Notifications tapped")
-    }
-    
-    func didTapHeaderWatch() {
-        print("Header Watch tapped")
+    func didTapMessenger() {
+        print("Messenger tapped")
     }
 }
 
