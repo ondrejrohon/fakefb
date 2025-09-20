@@ -26,7 +26,7 @@ class FeedViewController: UIViewController {
         setupFacebookTabBar()
         setupTableView()
         setupVideoManager()
-        setupFPSCounter()
+        // setupFPSCounter()
         loadFeedData()
     }
     
