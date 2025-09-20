@@ -52,9 +52,11 @@ class FeedViewController: UIViewController {
         NSLayoutConstraint.activate([
             facebookHeaderView.topAnchor.constraint(equalTo: view.topAnchor),
             facebookHeaderView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            facebookHeaderView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            facebookHeaderView.heightAnchor.constraint(equalToConstant: 64)
+            facebookHeaderView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
+        
+        // Let the header manage its own height constraint
+        facebookHeaderView.setupHeightConstraint()
     }
     
     private func setupFacebookTabBar() {

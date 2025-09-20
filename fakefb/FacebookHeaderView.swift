@@ -32,6 +32,9 @@ class FacebookHeaderView: UIView {
     private var isHeaderVisible = true
     private let hideThreshold: CGFloat = 20
     
+    // Add height constraint to control visibility
+    private var heightConstraint: NSLayoutConstraint?
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -44,6 +47,7 @@ class FacebookHeaderView: UIView {
     
     private func setupUI() {
         backgroundColor = UIColor(red: 0.26, green: 0.40, blue: 0.70, alpha: 1.0) // #4267b2
+        clipsToBounds = true // This will clip the content when it moves up
         
         containerView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(containerView)
@@ -58,6 +62,11 @@ class FacebookHeaderView: UIView {
             containerView.trailingAnchor.constraint(equalTo: trailingAnchor),
             containerView.heightAnchor.constraint(equalToConstant: headerHeight)
         ])
+    }
+    
+    func setupHeightConstraint() {
+        heightConstraint = heightAnchor.constraint(equalToConstant: totalHeight)
+        heightConstraint?.isActive = true
     }
     
     private func setupCameraButton() {
@@ -188,29 +197,48 @@ class FacebookHeaderView: UIView {
     }
     
     private func hideHeader(animated: Bool, velocity: CGFloat = 0) {
-        guard isHeaderVisible else { return }
+        guard isHeaderVisible, let heightConstraint = heightConstraint else { return }
         isHeaderVisible = false
         
         let duration = animated ? min(0.3, max(0.1, 300.0 / velocity)) : 0
         
-        UIView.animate(withDuration: duration, delay: 0, options: [.curveEaseInOut], animations: {
-            // Hide completely by moving up by total height + status bar
-            self.transform = CGAffineTransform(translationX: 0, y: -(self.totalHeight + self.statusBarHeight))
-        })
+        if animated {
+            UIView.animate(withDuration: duration, delay: 0, options: [.curveEaseInOut], animations: {
+                // Slide the container view up, and reduce the height to 0 for layout
+                self.containerView.transform = CGAffineTransform(translationX: 0, y: -self.totalHeight)
+                heightConstraint.constant = 0
+                self.superview?.layoutIfNeeded()
+            })
+        } else {
+            containerView.transform = CGAffineTransform(translationX: 0, y: -totalHeight)
+            heightConstraint.constant = 0
+            superview?.layoutIfNeeded()
+        }
     }
     
     private func showHeader(animated: Bool, velocity: CGFloat = 0) {
-        guard !isHeaderVisible else { return }
+        guard !isHeaderVisible, let heightConstraint = heightConstraint else { return }
         isHeaderVisible = true
         
         let duration = animated ? min(0.3, max(0.1, 300.0 / velocity)) : 0
         
-        UIView.animate(withDuration: duration, delay: 0, options: [.curveEaseInOut], animations: {
-            self.transform = .identity
-        })
+        // First restore the height constraint
+        heightConstraint.constant = totalHeight
+        
+        if animated {
+            UIView.animate(withDuration: duration, delay: 0, options: [.curveEaseInOut], animations: {
+                // Slide the container view back down
+                self.containerView.transform = .identity
+                self.superview?.layoutIfNeeded()
+            })
+        } else {
+            containerView.transform = .identity
+            superview?.layoutIfNeeded()
+        }
     }
     
     override var intrinsicContentSize: CGSize {
-        return CGSize(width: UIView.noIntrinsicMetric, height: totalHeight)
+        let height = isHeaderVisible ? totalHeight : 0
+        return CGSize(width: UIView.noIntrinsicMetric, height: height)
     }
 }
