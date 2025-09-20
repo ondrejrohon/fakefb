@@ -16,10 +16,14 @@ class FeedViewController: UIViewController {
     private var fpsCounter: FPSCounter?
     private var scrollTimer: Timer?
     
+    private var facebookHeaderView: FacebookHeaderView!
+    private var facebookTabBarView: FacebookTabBarView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         optimizeForPerformance()
-        setupNavigationBar()
+        setupFacebookHeader()
+        setupFacebookTabBar()
         setupTableView()
         setupVideoManager()
         setupFPSCounter()
@@ -36,52 +40,35 @@ class FeedViewController: UIViewController {
         }
     }
     
-    private func setupNavigationBar() {
-        navigationController?.navigationBar.backgroundColor = UIColor(red: 0.23, green: 0.35, blue: 0.60, alpha: 1.0)
-        navigationController?.navigationBar.barTintColor = UIColor(red: 0.23, green: 0.35, blue: 0.60, alpha: 1.0)
-        navigationController?.navigationBar.tintColor = .white
-        navigationController?.navigationBar.titleTextAttributes = [
-            .foregroundColor: UIColor.white,
-            .font: UIFont.systemFont(ofSize: 20, weight: .semibold)
-        ]
+    private func setupFacebookHeader() {
+        // Hide the default navigation bar
+        navigationController?.setNavigationBarHidden(true, animated: false)
         
-        title = "facebook"
+        facebookHeaderView = FacebookHeaderView()
+        facebookHeaderView.delegate = self
+        facebookHeaderView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(facebookHeaderView)
         
-        let searchButton = UIBarButtonItem(
-            image: UIImage(systemName: "magnifyingglass"),
-            style: .plain,
-            target: self,
-            action: #selector(searchTapped)
-        )
-        
-        let messagesButton = UIBarButtonItem(
-            image: UIImage(systemName: "message"),
-            style: .plain,
-            target: self,
-            action: #selector(messagesTapped)
-        )
-        
-        navigationItem.rightBarButtonItems = [messagesButton, searchButton]
-        
-        if #available(iOS 13.0, *) {
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = UIColor(red: 0.23, green: 0.35, blue: 0.60, alpha: 1.0)
-            appearance.titleTextAttributes = [
-                .foregroundColor: UIColor.white,
-                .font: UIFont.systemFont(ofSize: 20, weight: .semibold)
-            ]
-            navigationController?.navigationBar.standardAppearance = appearance
-            navigationController?.navigationBar.scrollEdgeAppearance = appearance
-        }
+        NSLayoutConstraint.activate([
+            facebookHeaderView.topAnchor.constraint(equalTo: view.topAnchor),
+            facebookHeaderView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            facebookHeaderView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            facebookHeaderView.heightAnchor.constraint(equalToConstant: 64)
+        ])
     }
     
-    @objc private func searchTapped() {
+    private func setupFacebookTabBar() {
+        facebookTabBarView = FacebookTabBarView()
+        facebookTabBarView.delegate = self
+        facebookTabBarView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(facebookTabBarView)
         
-    }
-    
-    @objc private func messagesTapped() {
-        
+        NSLayoutConstraint.activate([
+            facebookTabBarView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            facebookTabBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            facebookTabBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            facebookTabBarView.heightAnchor.constraint(equalToConstant: 49)
+        ])
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -100,10 +87,10 @@ class FeedViewController: UIViewController {
         view.addSubview(tableView)
         
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.topAnchor.constraint(equalTo: facebookHeaderView.bottomAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            tableView.bottomAnchor.constraint(equalTo: facebookTabBarView.topAnchor)
         ])
         
         tableView.register(TextPostCell.self, forCellReuseIdentifier: "TextPostCell")
@@ -153,12 +140,19 @@ class FeedViewController: UIViewController {
         feedDataSource = FeedDataSource()
         tableView.dataSource = feedDataSource
         feedDataSource.videoManager = videoManager
+        
+        // Attach the scroll view to the header for quick return behavior
+        facebookHeaderView.attachToScrollView(tableView)
+        
         tableView.reloadData()
     }
 }
 
 extension FeedViewController: UITableViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        // Handle quick return header behavior
+        facebookHeaderView.handleScroll(scrollView)
+        
         // Update videos immediately during scrolling to maintain playback of visible videos
         updateVisibleVideos()
     }
@@ -229,6 +223,46 @@ extension FeedViewController: VideoManagerDelegate {
     
     func videoDidFailToLoad(_ cell: VideoPostCell, error: Error) {
         print("Video failed to load: \(error.localizedDescription)")
+    }
+}
+
+extension FeedViewController: FacebookHeaderDelegate {
+    func didTapSearch() {
+        print("Search tapped")
+    }
+    
+    func didTapHeaderMessages() {
+        print("Header Messages tapped")
+    }
+    
+    func didTapHeaderNotifications() {
+        print("Header Notifications tapped")
+    }
+    
+    func didTapHeaderWatch() {
+        print("Header Watch tapped")
+    }
+}
+
+extension FeedViewController: FacebookTabBarDelegate {
+    func didTapHome() {
+        print("Tab Home tapped")
+    }
+    
+    func didTapWatch() {
+        print("Tab Watch tapped")
+    }
+    
+    func didTapMarketplace() {
+        print("Tab Marketplace tapped")
+    }
+    
+    func didTapNotifications() {
+        print("Tab Notifications tapped")
+    }
+    
+    func didTapMenu() {
+        print("Tab Menu tapped")
     }
 }
 
