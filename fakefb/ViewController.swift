@@ -18,6 +18,8 @@ class FeedViewController: UIViewController {
     
     private var facebookHeaderView: FacebookHeaderView!
     private var facebookTabBarView: FacebookTabBarView!
+    private var storiesView: StoriesView!
+    private var createPostView: CreatePostView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -71,6 +73,40 @@ class FeedViewController: UIViewController {
             facebookTabBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             facebookTabBarView.heightAnchor.constraint(equalToConstant: 49)
         ])
+    }
+    
+    private func setupTableHeaderView() {
+        // Create container for header views
+        let headerContainer = UIView()
+        
+        // Setup stories view
+        storiesView = StoriesView()
+        storiesView.translatesAutoresizingMaskIntoConstraints = false
+        headerContainer.addSubview(storiesView)
+        
+        // Setup create post view
+        createPostView = CreatePostView()
+        createPostView.delegate = self
+        createPostView.translatesAutoresizingMaskIntoConstraints = false
+        headerContainer.addSubview(createPostView)
+        
+        // Setup constraints
+        NSLayoutConstraint.activate([
+            storiesView.topAnchor.constraint(equalTo: headerContainer.topAnchor),
+            storiesView.leadingAnchor.constraint(equalTo: headerContainer.leadingAnchor),
+            storiesView.trailingAnchor.constraint(equalTo: headerContainer.trailingAnchor),
+            
+            createPostView.topAnchor.constraint(equalTo: storiesView.bottomAnchor, constant: 8),
+            createPostView.leadingAnchor.constraint(equalTo: headerContainer.leadingAnchor),
+            createPostView.trailingAnchor.constraint(equalTo: headerContainer.trailingAnchor),
+            createPostView.bottomAnchor.constraint(equalTo: headerContainer.bottomAnchor, constant: -8)
+        ])
+        
+        // Size the header container properly
+        headerContainer.frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: 208) // 120 + 80 + 8
+        
+        // Set as table header view
+        tableView.tableHeaderView = headerContainer
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -142,6 +178,9 @@ class FeedViewController: UIViewController {
         feedDataSource = FeedDataSource()
         tableView.dataSource = feedDataSource
         feedDataSource.videoManager = videoManager
+        
+        // Setup scrollable header views
+        setupTableHeaderView()
         
         // Attach the scroll view to the header for quick return behavior
         facebookHeaderView.attachToScrollView(tableView)
@@ -261,6 +300,12 @@ extension FeedViewController: FacebookTabBarDelegate {
     
     func didTapMenu() {
         print("Tab Menu tapped")
+    }
+}
+
+extension FeedViewController: CreatePostViewDelegate {
+    func didTapCreatePost() {
+        print("Create post tapped")
     }
 }
 

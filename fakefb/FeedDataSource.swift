@@ -18,74 +18,64 @@ class FeedDataSource: NSObject, UITableViewDataSource, UITableViewDataSourcePref
     }
     
     private func generateMockData() {
-        let usernames = ["john_doe", "sarah_smith", "mike_jones", "emma_wilson", "alex_brown", "lisa_davis", "tom_miller", "anna_garcia", "david_taylor", "maria_lopez"]
-        let timeStamps = ["2m", "5m", "12m", "25m", "1h", "2h", "3h", "5h", "8h", "1d"]
-        
-        let textContents = [
-            "Just finished a great workout at the gym! 💪 Feeling energized and ready to tackle the day.",
-            "Beautiful sunset today. Sometimes you just need to stop and appreciate the simple things in life.",
-            "Working on a new project that I'm really excited about. Can't wait to share more details soon!",
-            "Had an amazing dinner at that new restaurant downtown. The pasta was incredible!",
-            "Reading a fascinating book about space exploration. The universe is truly mind-blowing.",
-            "Coffee and good music - perfect combination for a productive morning.",
-            "Throwback to last summer's vacation. Already planning the next adventure!",
-            "Just adopted a rescue puppy! He's already stolen my heart ❤️",
-            "Learning to play guitar has been challenging but so rewarding. Practice makes perfect!",
-            "Grateful for amazing friends and family. Feeling blessed today."
+        // CT24 Post
+        let ct24Comments = [
+            CommentModel(id: "c1", author: "Jana Nováková", avatar: "/placeholder.png", content: "Konečně! Doufám, že se dočkáme spravedlnosti.", timeAgo: "pred hodinou", likes: 5),
+            CommentModel(id: "c2", author: "Peter Kováč", avatar: "/placeholder.png", content: "Sedm měsíců je dlouhá doba, ale důležité je, že se něco děje.", timeAgo: "pred 45 minútami", likes: 2),
+            CommentModel(id: "c3", author: "Maria Svobodová", avatar: "/placeholder.png", content: "Myslím na rodinu obětí. Musí to být pro ně velmi těžké.", timeAgo: "pred 30 minútami", likes: 8)
         ]
         
-        let imageContents = [
-            "Check out this amazing street art I found during my walk today!",
-            "Homemade pizza night was a success! 🍕",
-            "Nature photography from this weekend's hiking trip.",
-            "My garden is finally blooming! Spring is here 🌸",
-            "New artwork I picked up from a local artist. Love supporting the community!",
-            "Cozy reading corner setup complete. Time for some weekend relaxation.",
-            "Fresh produce from the farmer's market. Cooking something special tonight!",
-            "City skyline looking incredible from this rooftop view.",
-            "Beach day vibes. Sand, sun, and good times!",
-            "Morning coffee with a view. Perfect way to start the day."
+        let ct24Post = PostModel(
+            id: "post_1",
+            type: .image,
+            username: "CT24",
+            timeAgo: "pred 2 hodinami",
+            content: "Policie zatkla podezřelé z vraždy Jána Kuciaka a Martiny Kušnírové\n\nSedm měsíců po vraždě mají vyšetřovatelé pravděpodobně nájemného vraha nebo vrahy novináře a jeho přítelkyně.",
+            image: createPlaceholderImage(width: 300, height: 200, text: "CT24 News"),
+            likes: 23,
+            comments: 7,
+            shares: 2,
+            commentList: ct24Comments
+        )
+        
+        // Milan Lučanský Post
+        let lucanskyComments = [
+            CommentModel(id: "c4", author: "Radoslav Jesenský", avatar: "https://i.pravatar.cc/150?img=11", content: "TIEŽ ICH HNEĎ PUSTIA AKO TALIANOV?! Čakajte, že za týždeň budú voľní...", timeAgo: "pred 3 hodinami", likes: 12),
+            CommentModel(id: "c5", author: "Zuzana Gašparíková", avatar: "https://i.pravatar.cc/150?img=20", content: "NEMAJÚ OBJEDNÁVATEĽA - NEMAJÚ NIČ.", timeAgo: "pred 15 minútami", likes: 4),
+            CommentModel(id: "c6", author: "Alojz Kubranský", avatar: "https://i.pravatar.cc/150?img=12", content: "KONECNE!!! ale bez objednávateľa je to len divadlo", timeAgo: "pred 15 minútami", likes: 4)
         ]
         
-        let videoContents = [
-            "Trying out some new dance moves I learned online!",
-            "Time-lapse of today's cooking adventure in the kitchen.",
-            "Quick workout routine you can do anywhere - no equipment needed!",
-            "Behind the scenes of my latest art project.",
-            "Morning routine that keeps me productive all day.",
-            "Playing around with some new music I've been working on.",
-            "Fun day at the park with friends playing frisbee.",
-            "Exploring the city on my bike - found some cool hidden spots!",
-            "Late night coding session with some good vibes.",
-            "Teaching my dog some new tricks - he's such a quick learner!"
+        let lucanskyPost = PostModel(
+            id: "post_2",
+            type: .text,
+            username: "Milan Lučanský",
+            timeAgo: "pred 4 hodinami",
+            content: "VEĽKÝ ÚSPECH MOJICH KOLEGOV 🇸🇰\n\nDnes môžem s hrdosťou oznámiť, že vďaka neúnavnej práci vyšetrovateľov NAKA sa podarilo zadržať podozrivých z vraždy Jána Kuciaka a Martiny Kušnírovej. Po siedmich mesiacoch intenzívnej práce prinášame prvé výsledky. Chcem sa poďakovať všetkým príslušníkom, ktorí na prípade pracovali dňom i nocou. Stále však platí, že vyšetrovanie pokračuje a nepoľavíme, kým nebude spravodlivosti učinené zadosť. Na detaily si musíme počkať, aby sme neohrozili priebeh vyšetrovania.",
+            likes: 23,
+            comments: 7,
+            shares: 2,
+            commentList: lucanskyComments
+        )
+        
+        // Peter Pellegrini Post
+        let pellegriniComments = [
+            CommentModel(id: "c7", author: "Eva Horváthová", avatar: "/placeholder.png", content: "Dúfam, že sa podarí odhaliť všetkých zodpovedných.", timeAgo: "pred 3 hodinami", likes: 6),
+            CommentModel(id: "c8", author: "Martin Kováč", avatar: "/placeholder.png", content: "Je dôležité, aby sa spravodlivosť dočkala.", timeAgo: "pred 2 hodinami", likes: 3)
         ]
         
-        for i in 0..<30 {
-            let randomType = Int.random(in: 0...2)
-            let username = usernames[i % usernames.count]
-            let timeAgo = timeStamps[i % timeStamps.count]
-            let id = "post_\(i)"
-            
-            let post: PostModel
-            
-            switch randomType {
-            case 0:
-                let content = textContents[i % textContents.count]
-                post = PostModel(id: id, type: .text, username: username, timeAgo: timeAgo, content: content)
-                
-            case 1:
-                let content = imageContents[i % imageContents.count]
-                let placeholderImage = createPlaceholderImage(width: 300, height: 250, text: "Image \(i + 1)")
-                post = PostModel(id: id, type: .image, username: username, timeAgo: timeAgo, content: content, image: placeholderImage)
-                
-            default:
-                let content = videoContents[i % videoContents.count]
-                let videoURL = createMockVideoURL(index: i % 5)
-                post = PostModel(id: id, type: .video, username: username, timeAgo: timeAgo, content: content, videoURL: videoURL)
-            }
-            
-            posts.append(post)
-        }
+        let pellegriniPost = PostModel(
+            id: "post_3",
+            type: .text,
+            username: "Peter Pellegrini",
+            timeAgo: "pred 4 hodinami",
+            content: "S potešením som prijal správu o tom, že polícia zatkla podozrivých z vraždy dvoch nevinných mladých ľudí. Zároveň oceňujem profesionálnu prácu vyšetrovateľov a prokuratúry. Vyšetrenie a potrestanie vinníkov tejto vraždy je jednou z priorít mojej vlády a som veľmi rád, že policajné orgány už reálne konajú. Verím, že sa tento brutálny skutok podarí objasniť a odhaliť jeho motív ako aj objednávateľov, aby prestal rozdeľovať našu spoločnosť.",
+            likes: 23,
+            comments: 7,
+            shares: 2,
+            commentList: pellegriniComments
+        )
+        
+        posts = [ct24Post, lucanskyPost, pellegriniPost]
     }
     
     private func createPlaceholderImage(width: Int, height: Int, text: String) -> UIImage {

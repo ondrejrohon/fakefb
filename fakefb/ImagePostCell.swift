@@ -35,6 +35,8 @@ class ImagePostCell: UITableViewCell {
         backgroundColor = UIColor(red: 0.96, green: 0.96, blue: 0.96, alpha: 1.0)
         
         containerView.backgroundColor = .white
+        containerView.layer.borderWidth = 1
+        containerView.layer.borderColor = UIColor(red: 0.898, green: 0.898, blue: 0.898, alpha: 1.0).cgColor // Gray-200
         containerView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(containerView)
         
@@ -45,7 +47,7 @@ class ImagePostCell: UITableViewCell {
         containerView.addSubview(profileImageView)
         
         usernameLabel.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
-        usernameLabel.textColor = UIColor(red: 0.23, green: 0.35, blue: 0.60, alpha: 1.0)
+        usernameLabel.textColor = UIColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0) // Darker text for better visibility
         usernameLabel.translatesAutoresizingMaskIntoConstraints = false
         containerView.addSubview(usernameLabel)
         
@@ -110,17 +112,17 @@ class ImagePostCell: UITableViewCell {
         engagementStackView.translatesAutoresizingMaskIntoConstraints = false
         containerView.addSubview(engagementStackView)
         
-        likeButton.setTitle("Like", for: .normal)
+        likeButton.setTitle("Páči sa mi", for: .normal)
         likeButton.setTitleColor(.systemGray, for: .normal)
         likeButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         likeButton.addTarget(self, action: #selector(likeButtonTapped), for: .touchUpInside)
         
-        commentButton.setTitle("Comment", for: .normal)
+        commentButton.setTitle("Komentovať", for: .normal)
         commentButton.setTitleColor(.systemGray, for: .normal)
         commentButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         commentButton.addTarget(self, action: #selector(commentButtonTapped), for: .touchUpInside)
         
-        shareButton.setTitle("Share", for: .normal)
+        shareButton.setTitle("Zdieľať", for: .normal)
         shareButton.setTitleColor(.systemGray, for: .normal)
         shareButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         shareButton.addTarget(self, action: #selector(shareButtonTapped), for: .touchUpInside)
